@@ -3,7 +3,16 @@ BashDD is a tool that tests Bash scripts for their results in terms of the side 
 
 ## Requirements
 BashDD uses a Docker container and Python 3 to test Bash scripts. Before running tests the Python dependencies must be 
-installed.
+installed. For consistency, it's recommeneded to create a Python Virtual Environment to isolate dependencies.
+
+To create Virtual Env:
+`virtualenv -p python3 venv`
+
+This command creates a Virtual Env in venv directory. To activate the Virtual Env user:
+
+`source venv/bin/activate`
+
+And then install dependecies in the Virtual Env using:
 
 `pip install -r requirements.txt`
 
