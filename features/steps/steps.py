@@ -34,6 +34,24 @@ def step_file_content(context, file_path):
     for line in lines:
         result = container.exec_run("bash -c 'cat {0} | grep \"{1}\" | wc -l'".format(file_path, line)).decode("utf-8")
         assert int(result) > 0, "Expected {0} to be present but founds {1} occurance.".format(line, result)
+        
+@then('The file "{file_path}" contains only the following lines')
+def step_file_content_only(context, file_path):
+    lines = [ row['Line'] for row in context.table]
+    container = context.container
+    for line in lines:
+        result = container.exec_run("bash -c 'cat {0} | grep \"{1}\" | wc -l'".format(file_path, line)).decode("utf-8")
+        assert int(result) > 0, "Expected {0} to be present but founds {1} occurance.".format(line, result)
+    result = container.exec_run("bash -c 'cat {0} | wc -l'".format(file_path, line)).decode("utf-8")
+    assert int(result) == len(lines) , "Expected {0} lines but found {1}".format(len(lines), result)
+    
+@then('The file "{file_path}" does not contain the following lines')
+def step_file_content(context, file_path):
+    lines = [ row['Line'] for row in context.table]
+    container = context.container
+    for line in lines:
+        result = container.exec_run("bash -c 'cat {0} | grep \"{1}\" | wc -l'".format(file_path, line)).decode("utf-8")
+        assert int(result) == 0, "Expected {0} to be absent but founds {1} occurance.".format(line, result)
 
 
 @then('The file "{file_path}" has "{perm}" permission.')
@@ -48,3 +66,19 @@ def setp_service_status(context, service, status):
     container = context.container
     result = container.exec_run("bash -c 'service \"{0}\" status | grep \"{1}\" | wc -l'".format(service, status)).decode("utf-8")
     assert int(result) > 0, "Service {0} was expected to be {1} but is not".format(service, status)
+    
+    
+@then('Package "{package}" is installed.')
+def step_package_installed(context, package):
+    container = context.container
+    result = container.exec_run("bash -c 'dpkg -s {0} > /dev/null 2>@1; echo $?'".format(package)).decode("utf-8")
+    assert int(result) == 0, "Package {0} was expected to be installed but is not".format(package)
+    
+@then('Port "{port}" is listening.')
+def step_package_installed(context, port):
+    container = context.container
+    container.exec_run("bash -c 'apt update; apt install -y iproute2'");
+    result = container.exec_run("bash -c 'ss -aut'").decode("utf-8")
+    print(result) 
+    #assert int(result) > 0, "Port {0} was expected to be listening but is not".format(port)
+    
