@@ -78,7 +78,26 @@ def step_package_installed(context, package):
 def step_package_installed(context, port):
     container = context.container
     container.exec_run("bash -c 'apt update; apt install -y iproute2'");
-    result = container.exec_run("bash -c 'ss -aut'").decode("utf-8")
-    print(result) 
-    #assert int(result) > 0, "Port {0} was expected to be listening but is not".format(port)
+    result = container.exec_run("bash -c 'ss -atln | grep \":{0}\" | wc -l'".format(port)).decode("utf-8")
+    assert int(result) > 0, "Port {0} was expected to be listening but is not".format(port)
     
+    
+@then('User "{user}" exists.')
+def step_user_exists(context, user):
+    container = context.container
+    result = container.exec_run("bash -c 'id {0} > /dev/null 2>@1; echo $?'".format(user)).decode("utf-8")
+    assert int(result) == 0, "User {0} was expected to exist but is not".format(user)
+ 
+    
+@then('User "{user}" is member of "{group}".')
+def step_user_group_memeber(context, user, group):
+    container = context.container
+    result = container.exec_run("bash -c 'id {0} | grep {1} | wc -l'".format(user, group)).decode("utf-8")
+    assert int(result) > 0, "User {0} was expected to be member of {1} but is not".format(user, group)
+    
+
+@then('Process "{process}" is running.')
+def step_process_running(context, process):
+    container = context.container  
+    result = container.exec_run("bash -c 'ps -ax | grep {0} | wc -l'".format(process)).decode("utf-8")
+    assert int(result) > 2, "Process {0} was expected to be running but is not".format(process)

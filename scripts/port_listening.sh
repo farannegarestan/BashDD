@@ -2,4 +2,4 @@
 
 apt-get update
 apt-get install -y openssh-server
-sleep 5
+service ssh start
